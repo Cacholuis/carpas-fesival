@@ -1,0 +1,179 @@
+/* ---------------------------------- */
+/* ESTILO GENERAL */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #4CAF50; /* césped */
+}
+
+header {
+  text-align: center;
+  padding: 10px;
+  background-color: #2e7d32;
+  color: white;
+}
+
+#resetBtn {
+  margin-top: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+/* ---------------------------------- */
+/* CONTENEDOR PRINCIPAL DEL MAPA */
+.mapa {
+  position: relative;
+  width: 100vw;
+  max-width: 100%;
+  height: 60vh;
+  max-height: 500px;
+  margin: 10px auto;
+  background-color: #388e3c;
+  overflow: hidden;
+  border: 2px solid #1b5e20;
+  box-sizing: border-box;
+}
+
+/* ---------------------------------- */
+/* CONTENEDOR INTERNO ESCALABLE */
+.mapa-inner {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  transform-origin: top center;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------------------------------- */
+/* CARPAS */
+.carpas {
+  background-color: limegreen;
+  border: 1px solid #333;
+  width: 25px;
+  height: 25px;
+  margin: 1.5px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: black;
+  font-weight: bold;
+  border-radius: 2px;
+}
+
+.ocupada {
+  background-color: red;
+  color: white;
+}
+
+/* ---------------------------------- */
+/* ESCENARIO */
+.escenario {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 45%;
+  height: 35px;
+  background-color: #795548;
+  border: 2px solid #3e2723;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* ---------------------------------- */
+/* FILAS LATERALES */
+.fila-vertical {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  max-height: calc(100% - 40px);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.fila-izquierda {
+  left: 50%;
+  transform: translate(-430px, 25px);
+}
+
+.fila-derecha {
+  left: 50%;
+  transform: translate(390px, 25px);
+}
+
+/* ---------------------------------- */
+/* FILA TRASERA (NORTE) */
+.fila-trasera {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+}
+
+/* ---------------------------------- */
+/* RESPONSIVE PARA CELULARES */
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .mapa {
+    height: 75vh;
+  }
+
+  .mapa-inner {
+    transform: translateX(-50%) scale(0.55);
+    transform-origin: top center;
+  }
+
+  .carpas {
+    width: 18px;
+    height: 18px;
+    font-size: 7px;
+    margin: 1px;
+  }
+
+  .escenario {
+    height: 25px;
+    width: 38%;
+    font-size: 10px;
+  }
+
+  /* FILAS LATERALES - posiciones absolutas centradas */
+  .fila-izquierda {
+  left: 50%;
+  transform: translate(-300px, 25px);
+}
+
+.fila-derecha {
+  left: 50%;
+  transform: translate(280px, 25px);
+}
+/* ---------------------------------- */
+/* TOOLTIP (ventana flotante) */
+.tooltip {
+  position: absolute;      /* relativo al #mapa */
+  display: none;
+  background: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  pointer-events: none;
+  z-index: 999;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+}

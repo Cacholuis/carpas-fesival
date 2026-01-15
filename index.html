@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa de Carpas del Club</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+ <header>
+  <h1>Mapa de Carpas del Festival de la Verdura El Mollar</h1>
+  <p>Seleccione una carpa verde para reservarla.  
+     Complete su nombre y documento cuando se le solicite.</p>
+  <p style="font-size: 14px; color: #c8e6c9;">
+     Una vez ocupada, la carpa se marcará en rojo y mostrará el nombre del responsable.
+  </p>
+  <button id="resetBtn">Reiniciar Mapa</button>
+</header>
+
+<main>
+  <div id="mapa" class="mapa">
+    <div class="mapa-inner"></div>
+    <div id="tooltip" class="tooltip"></div>  <!-- ahora dentro del mapa -->
+  </div>
+</main>
+<script type="module" src="script.js"></script>
+</body>
+</html>
