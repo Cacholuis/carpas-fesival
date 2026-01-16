@@ -1,179 +1,205 @@
-/* ---------------------------------- */
-/* ESTILO GENERAL */
+/* ===========================
+   ESTILOS GENERALES
+=========================== */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #4CAF50; /* césped */
+  font-family: sans-serif;
+  background-color: hwb(204 55% 11%); /* celeste cielo */
 }
 
 header {
   text-align: center;
-  padding: 10px;
-  background-color: #2e7d32;
-  color: white;
+  padding: 10px 0;
 }
 
-#resetBtn {
-  margin-top: 5px;
-  padding: 5px 10px;
-  cursor: pointer;
+h1 {
+  margin-bottom: 4px;
 }
 
-/* ---------------------------------- */
-/* CONTENEDOR PRINCIPAL DEL MAPA */
-.mapa {
-  position: relative;
-  width: 100vw;
-  max-width: 100%;
-  height: 60vh;
-  max-height: 500px;
-  margin: 10px auto;
-  background-color: #388e3c;
+p {
+  margin-top: 0;
+  font-size: 14px;
+}
+
+/* ===========================
+   MAPA (área verde)
+=========================== */
+#mapa {
+  position: relative;          /* Para que elementos absolutos como el escenario se posicionen dentro */
+  width: 900px;                /* tamaño fijo de cuadricula en PC */
+  height: 650px;
+  margin: 15px auto;           /* centrado en pantalla */
+  background-color: hsl(130, 74%, 68%);   /* celeste cielo */
+  border: 2px solid #333;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
   overflow: hidden;
-  border: 2px solid #1b5e20;
-  box-sizing: border-box;
 }
 
-/* ---------------------------------- */
-/* CONTENEDOR INTERNO ESCALABLE */
-.mapa-inner {
+/* ===========================
+   DISTRIBUCIÓN DE CARPAS (UNIFICADA)
+=========================== */
+.fila-horizontal,
+.columna-izquierda,
+.columna-derecha {
   position: absolute;
-  top: 0;
+  display: flex;
+  gap: 2px;
+}
+
+/* Fila superior (A1–A30) */
+.fila-horizontal {
+  top: 10px;
   left: 50%;
   transform: translateX(-50%);
-  transform-origin: top center;
-  width: 100%;
-  height: 100%;
-}
-
-/* ---------------------------------- */
-/* CARPAS */
-.carpas {
-  background-color: limegreen;
-  border: 1px solid #333;
-  width: 25px;
-  height: 25px;
-  margin: 1.5px;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
+  flex-wrap: nowrap;
   justify-content: center;
-  font-size: 10px;
-  color: black;
-  font-weight: bold;
-  border-radius: 2px;
 }
 
-.ocupada {
-  background-color: red;
-  color: white;
-}
-
-/* ---------------------------------- */
-/* ESCENARIO */
-.escenario {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 45%;
-  height: 35px;
-  background-color: #795548;
-  border: 2px solid #3e2723;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  letter-spacing: 1px;
-}
-
-/* ---------------------------------- */
-/* FILAS LATERALES */
-.fila-vertical {
-  position: absolute;
-  display: flex;
+/* Columna izquierda (L1–L20) */
+.columna-izquierda {
+  top: 38px;
+  left: 32px;
   flex-direction: column;
-  justify-content: flex-start;
-  max-height: calc(100% - 40px);
-  overflow-y: auto;
-  scrollbar-width: none;
+  align-items: center;
 }
 
-.fila-izquierda {
-  left: 50%;
-  transform: translate(-430px, 25px);
+/* Columna derecha (R1–R20) */
+.columna-derecha {
+  top: 38px;
+  right: 32px;
+  flex-direction: column;
+  align-items: center;
 }
 
-.fila-derecha {
-  left: 50%;
-  transform: translate(390px, 25px);
-}
 
-/* ---------------------------------- */
-/* FILA TRASERA (NORTE) */
-.fila-trasera {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+/* ===========================
+   CARPAS (ajustadas al campo)
+=========================== */
+.carpa {
+  width: 24px;             /* antes 35px */
+  height: 24px;
+  background-color: #3cb043; /* verde libre */
+  color: #fff;
+  font-size: 9px;          /* texto proporcional */
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
   display: flex;
+  align-items: center;
   justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.3s ease, transform 0.1s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-/* ---------------------------------- */
-/* RESPONSIVE PARA CELULARES */
-@media (max-width: 768px) {
-  body {
-    overflow-x: hidden;
-  }
-
-  .mapa {
-    height: 75vh;
-  }
-
-  .mapa-inner {
-    transform: translateX(-50%) scale(0.55);
-    transform-origin: top center;
-  }
-
-  .carpas {
-    width: 18px;
-    height: 18px;
-    font-size: 7px;
-    margin: 1px;
-  }
-
-  .escenario {
-    height: 25px;
-    width: 38%;
-    font-size: 10px;
-  }
-
-  /* FILAS LATERALES - posiciones absolutas centradas */
-  .fila-izquierda {
-  left: 50%;
-  transform: translate(-300px, 25px);
+.carpa.ocupada {
+  background-color: #d9534f; /* rojo ocupada */
 }
 
-.fila-derecha {
-  left: 50%;
-  transform: translate(280px, 25px);
+.carpa:hover {
+  transform: scale(1.08);
 }
-/* ---------------------------------- */
-/* TOOLTIP (ventana flotante) */
+
+
+.carpa.ocupada {
+  background-color: #d9534f; /* rojo ocupada */
+}
+
+.carpa:hover {
+  transform: scale(1.1);
+}
+
+/* ===========================
+   ESCENARIO (centrado)
+=========================== */
+.escenario {
+  position: absolute;           /* relativo a #mapa */
+  bottom: 5px;                  /* margen inferior */
+  left: 50%;                    /* centrado horizontal */
+  transform: translateX(-50%);
+  background-color: #d35400;    /* color naranja/rojo */
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid black;
+  z-index: 1000;
+  font-size: 12px;
+}
+
+/* ===========================
+   TOOLTIP
+=========================== */
 .tooltip {
-  position: absolute;      /* relativo al #mapa */
+  position: absolute;
   display: none;
   background: rgba(0, 0, 0, 0.9);
   color: #fff;
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: 6px 8px;
+  border-radius: 4px;
   font-size: 11px;
+  white-space: nowrap;
   pointer-events: none;
   z-index: 999;
-  white-space: nowrap;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
-}
+
+/* ===========================
+   RESPONSIVE (VERTICAL MÓVIL)
+=========================== */
+@media (max-width: 768px) {
+   #mapa {
+    width: 95%;
+    height: auto;
+    aspect-ratio: 1 / 1.2;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    margin: 0 auto;
+    transform-origin: center center;
+  }
+
+  /* Fila superior (A1–A30) */
+  .fila-horizontal {
+    top: 20px;
+  }
+
+  /* Columnas laterales (L y R) — subidas hacia arriba */
+  .columna-izquierda {
+    top: 36px;  /* antes 150px en PC */
+    left: 5px;
+    gap: 1px;
+  }
+
+  .columna-derecha {
+    top: 36px;  /* igual para mantener simetría */
+    right: 5px;
+    gap: 1px;
+  }
+
+  .carpa {
+    width: 7px;
+    height: 13px;
+    font-size: 5px;
+  }
+
+  .escenario {
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70%;
+    font-size: 12px;
+    padding: 6px 10px;
+    background-color: #d9b310;
+    border: 1px solid #333;
+  }
+
+/* Asegura centrado general del mapa */
+#mapa {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}}
+

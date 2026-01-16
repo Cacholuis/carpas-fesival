@@ -1,5 +1,5 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, set, get, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // Configuración Firebase
 const firebaseConfig = {
@@ -14,112 +14,139 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+console.log("Conectado correctamente a Firebase.");
 
-// DOM
-const mapa = document.querySelector('.mapa-inner');
-const resetBtn = document.getElementById('resetBtn');
-const carpas = [];
+/* ===========================
+   VARIABLES Y CONSTANTES
+=========================== */
+const mapa = document.getElementById("mapa");
+const tooltip = document.getElementById("tooltip");
+const ADMIN_PIN = "festival"; // clave del administrador
 
-const filas = { izquierda: 20, derecha: 20, atras: 30 };
-
-// Crear Mapa
+/* ===========================
+   CREACIÓN DEL MAPA
+=========================== */
 function crearMapa() {
-  mapa.innerHTML = '';
+  mapa.innerHTML = "";
 
-  // Escenario
-  const escenario = document.createElement('div');
-  escenario.classList.add('escenario');
-  escenario.textContent = 'ESCENARIO';
-  mapa.appendChild(escenario);
+  const filaSuperior = document.createElement("div");
+  filaSuperior.classList.add("fila-horizontal");
 
-  // Fila izquierda
-  const filaIzq = document.createElement('div');
-  filaIzq.classList.add('fila-vertical', 'fila-izquierda');
-  mapa.appendChild(filaIzq);
-  for (let i = 1; i <= filas.izquierda; i++) crearCarpa(`L${i}`, filaIzq);
-
-  // Fila derecha
-  const filaDer = document.createElement('div');
-  filaDer.classList.add('fila-vertical', 'fila-derecha');
-  mapa.appendChild(filaDer);
-  for (let i = 1; i <= filas.derecha; i++) crearCarpa(`R${i}`, filaDer);
-
-  // Fila trasera
-  const filaTras = document.createElement('div');
-  filaTras.classList.add('fila-trasera');
-  mapa.appendChild(filaTras);
-  for (let i = 1; i <= filas.atras; i++) crearCarpa(`A${i}`, filaTras);
-}
-
-// Crear Carpa (versión corregida)
-function crearCarpa(id, contenedor) {
-  const div = document.createElement('div');
-  div.classList.add('carpas');
-  div.dataset.id = id;
-  div.textContent = id;
-  contenedor.appendChild(div);
-  carpas.push(div);
-
-  div.addEventListener('click', () => {
-    // Si ya está ocupada, solo mostrar tooltip
-    if (div.classList.contains('ocupada')) {
-      mostrarTooltip(div);
-      return;
-    }
-
-    // Si está libre, permitir reserva
-    const nombre = prompt('Ingrese su nombre:');
-    const dni = prompt('Ingrese su documento:');
-    if (!nombre || !dni) return;
-    set(ref(db, `carpas/${id}`), { nombre, dni });
-  });
-}
-
-// Escuchar cambios Firebase
-onValue(ref(db, 'carpas'), (snapshot) => {
-  const data = snapshot.val() || {};
-  carpas.forEach(div => {
-    const id = div.dataset.id;
-    if (data[id]) {
-      div.classList.add('ocupada');
-    } else {
-      div.classList.remove('ocupada');
-    }
-  });
-});
-
-// Botón reinicio con PIN
-resetBtn.addEventListener('click', () => {
-  const pin = prompt('Ingrese el PIN para reiniciar:');
-  if (pin !== '034211') {
-    alert('PIN incorrecto');
-    return;
+  // Carpas A1–A30 (fila superior)
+  for (let i = 1; i <= 30; i++) {
+    const id = `A${i}`;
+    const carpa = crearCarpa(id);
+    filaSuperior.appendChild(carpa);
   }
-  set(ref(db, 'carpas'), {});
-  carpas.forEach(div => div.classList.remove('ocupada'));
-  alert('Mapa reiniciado correctamente');
-});
 
-// -------------------------------------------------------------
-// TOOLTIP FLOTANTE - Muestra datos al pasar o tocar una carpa ocupada
-// -------------------------------------------------------------
-// Mostrar información de carpa ocupada en celulares o PC (modo simple)
-const mapaContainer = document.getElementById('mapa');
+  const colIzquierda = document.createElement("div");
+  colIzquierda.classList.add("columna-izquierda");
 
-mapaContainer.addEventListener('click', (e) => {
-  const target = e.target.closest('.carpas');
-  if (!target) return;
+  // Carpas L1–L20 (columna izquierda)
+  for (let i = 1; i <= 20; i++) {
+    const id = `L${i}`;
+    const carpa = crearCarpa(id);
+    colIzquierda.appendChild(carpa);
+  }
 
-  const id = target.dataset.id;
+  const colDerecha = document.createElement("div");
+  colDerecha.classList.add("columna-derecha");
+
+  // Carpas R1–R20 (columna derecha)
+  for (let i = 1; i <= 20; i++) {
+    const id = `R${i}`;
+    const carpa = crearCarpa(id);
+    colDerecha.appendChild(carpa);
+  }
+
+  mapa.appendChild(filaSuperior);
+  mapa.appendChild(colIzquierda);
+  mapa.appendChild(colDerecha);
+}
+
+/* ===========================
+   CREACIÓN DE CADA CARPA
+=========================== */
+function crearCarpa(id) {
+  const div = document.createElement("div");
+  div.classList.add("carpa", "libre");
+  div.textContent = id;
+  div.dataset.id = id;
+  div.addEventListener("click", manejarReserva);
+  return div;
+}
+
+/* ===========================
+   LÓGICA DE RESERVA / CANCELACIÓN
+=========================== */
+async function manejarReserva(e) {
+  const carpa = e.target;
+  const id = carpa.dataset.id;
   const infoRef = ref(db, `carpas/${id}`);
+  const snapshot = await get(infoRef);
 
-  onValue(infoRef, (snapshot) => {
-    const data = snapshot.val();
-    if (data) {
-      // Mostrar datos en un modal nativo
-      alert(`Carpa ${id}\n\nOcupada por: ${data.nombre}\nDNI: ${data.dni}`);
+  if (snapshot.exists()) {
+    // Carpa ocupada → pedir PIN del administrador
+    const pin = prompt("Ingrese la clave de administrador para cancelar la reserva:");
+    if (pin === ADMIN_PIN) {
+      await remove(infoRef);
+      carpa.classList.remove("ocupada");
+      carpa.classList.add("libre");
+      alert(`Reserva de ${id} cancelada correctamente.`);
+    } else if (pin !== null) {
+      alert("Clave incorrecta. No se pudo cancelar la reserva.");
     }
-  }, { onlyOnce: true });
-});
+  } else {
+    // Carpa libre → reservar
+    const nombre = prompt("Ingrese su nombre:");
+    const dni = prompt("Ingrese su DNI:");
+    if (nombre && dni) {
+      await set(infoRef, { nombre, dni });
+      carpa.classList.remove("libre");
+      carpa.classList.add("ocupada");
+    }
+  }
+}
 
+/* ===========================
+   TOOLTIP (mostrar info ocupante)
+=========================== */
+function activarTooltip(carpa, datos) {
+  carpa.addEventListener("mouseenter", (e) => {
+    tooltip.textContent = `${datos.nombre} - DNI ${datos.dni}`;
+    tooltip.style.display = "block";
+    tooltip.style.left = e.pageX + 10 + "px";
+    tooltip.style.top = e.pageY + 10 + "px";
+  });
+
+  carpa.addEventListener("mouseleave", () => {
+    tooltip.style.display = "none";
+  });
+}
+
+/* ===========================
+   ESCUCHA EN TIEMPO REAL (Firebase)
+=========================== */
+function escucharFirebase() {
+  const carpasRef = ref(db, "carpas");
+  onValue(carpasRef, (snapshot) => {
+    const datos = snapshot.val() || {};
+    document.querySelectorAll(".carpa").forEach((carpa) => {
+      const id = carpa.dataset.id;
+      if (datos[id]) {
+        carpa.classList.remove("libre");
+        carpa.classList.add("ocupada");
+        activarTooltip(carpa, datos[id]);
+      } else {
+        carpa.classList.remove("ocupada");
+        carpa.classList.add("libre");
+      }
+    });
+  });
+}
+
+/* ===========================
+   INICIALIZACIÓN
+=========================== */
 crearMapa();
+escucharFirebase();
